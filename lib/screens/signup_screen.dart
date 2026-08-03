@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mavazi/screens/login_screan.dart';
+import 'package:mavazi/screens/login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
