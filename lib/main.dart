@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData(fontFamily: 'PlayfairDisplay'),
       debugShowCheckedModeBanner: false,
-      home:LoginScreen()
+      home:HomeScreen()
     );
   }
 
