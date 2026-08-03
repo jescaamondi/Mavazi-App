@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:mavazi/model/cart.dart';
 import 'package:mavazi/model/product.dart';
+import 'package:provider/provider.dart';
 
 class ProductCard extends StatelessWidget{
   final Product product;
@@ -26,8 +28,21 @@ class ProductCard extends StatelessWidget{
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(product.name),
+              SizedBox(height: 8),
+
               Text(product.description),
-              Text('KES ${product.price}')
+              SizedBox(height: 8),
+              Row(children: [
+                Text('KES ${product.price}'),
+                IconButton(onPressed: () {
+                  Provider.of<CartModel>(
+                    context,
+                    listen: false).add(product);
+                  
+                }, icon: Icon(Icons.add_shopping_cart, size:20),
+                ),
+                ],
+                )
             ],
           ),
           ),
