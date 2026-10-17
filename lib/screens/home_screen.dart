@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
-import 'package:mavazi/model/cart.dart';
-import 'package:mavazi/model/product.dart';
-import 'package:mavazi/screens/product_cart.dart';
+import 'package:mavazi/models/cart.dart';
+import 'package:mavazi/models/product.dart';
+import 'package:mavazi/screens/cart_card.dart';
+import 'package:mavazi/screens/product_card.dart';
+import 'package:mavazi/viewmodel/auth_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,16 +11,21 @@ class HomeScreen extends StatefulWidget {
 
   @override
   State<HomeScreen> createState() {
-    return _HomeScreenState();
+    return _HomeScreeenState();
   }
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreeenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String _tabTitle = "Home";
 
-  final List<Widget> _tabs = [_HomeTab(), _OrdersTab(), _ShoppingCartTab(), _ProfileTab()];
-  final List<String> _titles = ['Home', 'Orders', 'Cart','Profile'];
+  final List<Widget> _tabs = [
+    _HomeTab(),
+    _CartTab(),
+    _OrdersTab(),
+    _ProfileTab(),
+  ];
+  final List<String> _titles = ['Home', 'Cart', 'Orders', 'Profile'];
 
   void _onClickTab(int index) {
     setState(() {
@@ -31,32 +37,54 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(_tabTitle),),
+      appBar: AppBar(
+        title: Column(
+          children: [
+            Text(_tabTitle),
+            Row(
+              children: [
+                Spacer(flex: 1),
+                Consumer<CartModel>(
+                  builder: (context, cart, child) {
+                    return Text(
+                      'KES ${cart.getTotalCost()}',
+                      style: TextStyle(fontSize: 12),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       body: IndexedStack(index: _selectedIndex, children: _tabs),
       bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
         currentIndex: _selectedIndex,
         onTap: _onClickTab,
-        type: BottomNavigationBarType.fixed,
-        unselectedItemColor: Colors.red,
-        items:[
+        items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            activeIcon: Icon(Icons.home),
+            activeIcon: Icon(Icons.home, color: Colors.red),
             label: 'Home',
           ),
           BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_basket_outlined),
+            activeIcon: Icon(
+              Icons.shopping_basket_outlined,
+              color: Colors.yellow,
+            ),
+            label: 'Cart',
+          ),
+
+          BottomNavigationBarItem(
             icon: Icon(Icons.shopping_bag_outlined),
-            activeIcon: Icon(Icons.shopping_bag),
+            activeIcon: Icon(Icons.shopping_bag, color: Colors.blue),
             label: 'Orders',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart_checkout_outlined),
-            activeIcon: Icon(Icons.shopping_cart),
-            label: 'Cart',
-          ),
-          BottomNavigationBarItem(
             icon: Icon(Icons.person_2_outlined),
-            activeIcon: Icon(Icons.person_2),
+            activeIcon: Icon(Icons.person_2, color: Colors.green),
             label: 'Profile',
           ),
         ],
@@ -68,49 +96,61 @@ class _HomeScreenState extends State<HomeScreen> {
 class _HomeTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return ListView.builder(
       itemCount: dummyProducts.length,
-      itemBuilder: (context, index){
-        var product=dummyProducts[index];
+      itemBuilder: (context, index) {
+        var product = dummyProducts[index];
         return ProductCard(product: product);
-        
       },
     );
   }
 }
 
-class _OrdersTab extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return Center(child: Text("Orders"));
-  }
-}
-
-class _ShoppingCartTab extends StatelessWidget{
+class _CartTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Consumer<CartModel>(
-      builder:(context, cart, child){
-        if(cart.items.isEmpty){
-          return Center(child: Text("Your cart is Empty"));
+      builder: (context, cart, child) {
+        if (cart.items.isEmpty) {
+          return Center(child: Text("Your cart is empty"));
         }
         return ListView.builder(
           itemCount: cart.items.length,
-          itemBuilder: (context, index){
-          var product =cart.items[index];
-          return ProductCard(product: product);
-          
-        },
+          itemBuilder: (context, index) {
+            var cartItem = cart.items[index];
+            return CartCard(
+              cartItem: cartItem,
+              increment: () {
+                cart.increment(cartItem.product);
+              },
+              decrement: () {
+                cart.decrement(cartItem.product);
+              },
+            );
+          },
         );
       },
     );
   }
 }
 
-class _ProfileTab extends StatelessWidget {
+class _OrdersTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text("Profile"));
+    return Center(child: Text("Orders"));
+  }
+}
+
+class _ProfileTab extends StatelessWidget {
+  const _ProfileTab();
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer<AuthViewModel>(builder: (_,AuthViewModel,_){
+      return ElevatedButton(onPressed: (), child: child)
+    }
+      
+      
+      context(child: Text("Profile"));
   }
 }
