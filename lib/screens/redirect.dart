@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:mavazi/screens/home_screen.dart';
 import 'package:mavazi/screens/login_screen.dart';
 import 'package:mavazi/viewmodel/auth_viewmodel.dart';
@@ -13,6 +13,10 @@ class Redirect extends StatelessWidget {
       builder: (context, authViewModel, child) {
         var status = authViewModel.authStatus;
         switch (status) {
+          case AuthStatus.checking:
+            return const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
+            );
           case AuthStatus.unauthenticated:
             return const LoginScreen();
           case AuthStatus.authenticated:

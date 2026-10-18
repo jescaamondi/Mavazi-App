@@ -146,11 +146,38 @@ class _ProfileTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<AuthViewModel>(builder: (_,AuthViewModel,_){
-      return ElevatedButton(onPressed: (), child: child)
-    }
-      
-      
-      context(child: Text("Profile"));
+    return Consumer<AuthViewModel>(
+      builder: (context, authViewModel, child) {
+        var user = authViewModel.user;
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (user != null) ...[
+                CircleAvatar(
+                  radius: 40,
+                  backgroundImage: NetworkImage(user.image),
+                ),
+                SizedBox(height: 16),
+                Text(
+                  '${user.firstName} ${user.lastName}',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 4),
+                Text(user.email),
+                SizedBox(height: 24),
+              ],
+              ElevatedButton.icon(
+                onPressed: () {
+                  authViewModel.logout();
+                },
+                icon: Icon(Icons.logout),
+                label: Text("Log out"),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 }

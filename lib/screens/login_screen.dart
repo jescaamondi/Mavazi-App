@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:mavazi/screens/home_screen.dart';
 import 'package:mavazi/screens/signup_screen.dart';
 import 'package:mavazi/viewmodel/auth_viewmodel.dart';
 import 'package:provider/provider.dart';
@@ -102,22 +101,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                   _passwordController.text,
                                 );
                                 if (!context.mounted) return;
-                                if (success) {
-                                  Navigator.pushReplacement(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => const HomeScreen(),
-                                    ),
-                                  );
-                                } else {
+                                if (!success) {
                                   final snackBar = SnackBar(
                                     content: Text(
                                       authViewModel.errorMessage ??
                                           'An error occurred',
                                     ),
                                   );
-                                  ScaffoldMessenger.of(context)
-                                      .showSnackBar(snackBar);
+                                  ScaffoldMessenger.of(
+                                    context,
+                                  ).showSnackBar(snackBar);
                                 }
                               }
                             },

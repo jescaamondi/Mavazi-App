@@ -4,20 +4,18 @@ import 'package:mavazi/services/auth_api.dart';
 import 'package:mavazi/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum AuthStatus { unauthenticated, authenticated }
+enum AuthStatus { checking, unauthenticated, authenticated }
 
 class AuthViewModel extends ChangeNotifier {
   final AuthApi _authApi;
   bool isLoading = false;
-  autoLogin()
-
 
   User? user;
   String? errorMessage;
 
   static const String ACCESS_TOKEN_KEY = "access_token_key";
   static const String REFRESH_TOKEN_KEY = "refresh_token_key";
-  AuthStatus authStatus = AuthStatus.unauthenticated;
+  AuthStatus authStatus = AuthStatus.checking;
 
   AuthViewModel({AuthApi? authApi}) : _authApi = authApi ?? AuthApi();
 
@@ -51,25 +49,53 @@ class AuthViewModel extends ChangeNotifier {
     await prefs.setString(REFRESH_TOKEN_KEY, refreshToken);
   }
 
-  Future<void> authLogin() async {
+  Future<void> autoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     String? accessToken = prefs.getString(ACCESS_TOKEN_KEY);
     String? refreshToken = prefs.getString(REFRESH_TOKEN_KEY);
-    if (accessToken != null && refreshToken != null) {
+    if (accessToken == null || refreshToken == null) {
+      authStatus = AuthStatus.unauthenticated;
+      notifyListeners();
+      return;
+    }
+
+    try {
+      user = await _authApi.fetchCurrentUser(accessToken);
       authStatus = AuthStatus.authenticated;
-    } else {
+    } on ApiError {
+      await refreshSession(refreshToken);
+    } catch (e) {
       authStatus = AuthStatus.unauthenticated;
     }
     notifyListeners();
   }
-  Future<void> logout() async{
+
+  Future<void> refreshSession(String refreshToken) async {
+    try {
+      var tokenResponse = await _authApi.refresh(refreshToken);
+      await saveUserTokens(
+        tokenResponse.accessToken,
+        tokenResponse.refreshToken,
+      );
+      user = await _authApi.fetchCurrentUser(tokenResponse.accessToken);
+      authStatus = AuthStatus.authenticated;
+    } catch (e) {
+      await clearTokens();
+      user = null;
+      authStatus = AuthStatus.unauthenticated;
+    }
+  }
+
+  Future<void> clearTokens() async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove(ACCESS_TOKEN_KEY);
-    prefs.remove(REFRESH_TOKEN_KEY);
+    await prefs.remove(ACCESS_TOKEN_KEY);
+    await prefs.remove(REFRESH_TOKEN_KEY);
+  }
+
+  Future<void> logout() async {
+    await clearTokens();
+    user = null;
     authStatus = AuthStatus.unauthenticated;
     notifyListeners();
   }
 }
-final token response = await _authApi.refresh(refrechToken):class
-return CircularProgressI dicator();
-}},
